@@ -154,6 +154,25 @@
         .icon-btn:hover { color: #d1d7db; }
         .send-btn { padding: 10px 18px; background: #00a884; color: #111b21; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; }
     </style>
+    @media (max-width: 768px) {
+  body {
+    display: block;
+    height: 100vh;
+    overflow: auto;
+  }
+  .app-container, .main-container {
+    width: 100% !important;
+    height: 100vh !important;
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  .chat-area {
+    width: 100% !important;
+    height: 100% !important;
+  }
 </head>
 <body>
 
