@@ -36,7 +36,6 @@
             width: 100%; max-width: 1300px; height: 95vh;
             background: #222e35; display: none; overflow: hidden;
             box-shadow: 0 6px 18px rgba(0,0,0,0.4);
-            display: flex;
         }
 
         .wa-sidebar {
@@ -154,39 +153,6 @@
         .icon-btn { background: transparent; border: none; color: #8696a0; font-size: 1.3rem; cursor: pointer; padding: 0 5px; }
         .icon-btn:hover { color: #d1d7db; }
         .send-btn { padding: 10px 18px; background: #00a884; color: #111b21; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; }
-
-        @media (max-width: 768px) {
-            body {
-                display: block;
-                height: 100vh;
-                overflow: auto;
-            }
-            #wa-dashboard {
-                width: 100% !important;
-                height: 100vh !important;
-                max-width: none;
-                flex-direction: column;
-            }
-            .wa-sidebar {
-                width: 100% !important;
-                height: 38% !important;
-                min-height: 180px;
-            }
-            .chat-section {
-                width: 100% !important;
-                height: 62% !important;
-                min-height: 0;
-            }
-            header {
-                flex-wrap: wrap;
-                height: auto;
-                min-height: 60px;
-                gap: 8px;
-            }
-            .header-tools {
-                flex-wrap: wrap;
-            }
-        }
     </style>
 </head>
 <body>
@@ -309,7 +275,6 @@
         let localStream;
         let peerConnection;
         let incomingOffer;
-        let incomingCallType = 'audio';
         const rtcConfig = { iceServers: [{ urls: 'stun:stun.l.google.com:19302' }] };
 
         async function startCall(type) {
@@ -340,7 +305,6 @@
 
         socket.on('incoming-call', (data) => {
             incomingOffer = data.offer;
-            incomingCallType = data.type || 'audio';
             document.getElementById('incoming-type').textContent = `Incoming ${data.type.toUpperCase()} Call...`;
             document.getElementById('incoming-modal').style.display = 'block';
         });
@@ -350,10 +314,7 @@
             document.getElementById('call-screen').style.display = 'flex';
             document.getElementById('call-status').textContent = 'Connected';
 
-            localStream = await navigator.mediaDevices.getUserMedia({
-                video: incomingCallType === 'video',
-                audio: true
-            });
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
             document.getElementById('local-video').srcObject = localStream;
 
             peerConnection = new RTCPeerConnection(rtcConfig);
@@ -388,22 +349,14 @@
             socket.emit('reject-call');
         }
 
-        function endCall(notify = true) {
-            if (peerConnection) {
-                peerConnection.close();
-                peerConnection = null;
-            }
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-                localStream = null;
-            }
-            document.getElementById('remote-video').srcObject = null;
-            document.getElementById('local-video').srcObject = null;
+        function endCall() {
+            if (peerConnection) peerConnection.close();
+            if (localStream) localStream.getTracks().forEach(track => track.stop());
             document.getElementById('call-screen').style.display = 'none';
-            if (notify) socket.emit('end-call');
+            socket.emit('end-call');
         }
 
-        socket.on('call-ended', () => { endCall(false); });
+        socket.on('call-ended', () => { endCall(); });
         socket.on('call-rejected', () => { alert('Call Rejected'); endCall(); });
 
         function uploadWallpaper(event) {
