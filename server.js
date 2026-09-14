@@ -49,8 +49,9 @@ loadSavedData();
 io.on('connection', (socket) => {
     socket.on('verify passcode', (enteredCode) => {
         if (enteredCode === SECRET_PASSCODE) {
-            if (activeUsers >= 2) {
-                socket.emit('access denied', 'ROOM FULL: Max 2 Users Allowed.');
+            if (socket.authenticated) return;
+            if (activeUsers >= 4) {
+                socket.emit('access denied', 'ROOM FULL: Max 4 Users Allowed.');
                 socket.disconnect();
                 return;
             }
@@ -69,6 +70,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('chat message', (msgData) => {
+        if (!socket.authenticated) return;
         const fullMsg = {
             id: msgData.id,
             text: msgData.text || '',
@@ -87,6 +89,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('change wallpaper', (imageData) => {
+        if (!socket.authenticated) return;
         currentWallpaper = imageData;
         saveData(); // Save Wallpaper to Permanent File
         io.emit('update wallpaper', imageData);
@@ -94,26 +97,32 @@ io.on('connection', (socket) => {
 
     // WebRTC Signaling
     socket.on('call-user', (data) => {
+        if (!socket.authenticated) return;
         socket.broadcast.emit('incoming-call', { offer: data.offer, type: data.type });
     });
 
     socket.on('make-answer', (data) => {
+        if (!socket.authenticated) return;
         socket.broadcast.emit('call-accepted', { answer: data.answer });
     });
 
     socket.on('ice-candidate', (candidate) => {
+        if (!socket.authenticated) return;
         socket.broadcast.emit('ice-candidate', candidate);
     });
 
     socket.on('end-call', () => {
+        if (!socket.authenticated) return;
         socket.broadcast.emit('call-ended');
     });
 
     socket.on('reject-call', () => {
+        if (!socket.authenticated) return;
         socket.broadcast.emit('call-rejected');
     });
 
     socket.on('edit message', (data) => {
+        if (!socket.authenticated) return;
         const msg = messageHistory.find(m => m.id === data.id);
         if (msg && msg.senderId === socket.id) {
             msg.text = data.newText + " (edited)";
@@ -123,6 +132,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('delete message', (msgId) => {
+        if (!socket.authenticated) return;
         const msg = messageHistory.find(m => m.id === msgId);
         if (msg && msg.senderId === socket.id) {
             msg.text = "🚫 This message was deleted";
@@ -134,6 +144,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('message seen', (data) => {
+        if (!socket.authenticated) return;
         const msg = messageHistory.find(m => m.id === data.msgId);
         if (msg) {
             msg.seen = true;
@@ -144,6 +155,7 @@ io.on('connection', (socket) => {
 
     // Jab koi "Clear History" dabaye tabhi saara data delete hoga
     socket.on('clear history', () => {
+        if (!socket.authenticated) return;
         messageHistory = [];
         currentWallpaper = null;
         saveData(); // Clear File Data
@@ -152,6 +164,7 @@ io.on('connection', (socket) => {
     });
 
     socket.on('typing', (isTyping) => {
+        if (!socket.authenticated) return;
         socket.broadcast.emit('user typing', isTyping);
     });
 
