@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WhatsApp Web Ultra</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Segoe UI, Helvetica Neue, Helvetica, Arial, sans-serif; }
@@ -154,217 +154,29 @@
         .icon-btn:hover { color: #d1d7db; }
         .send-btn { padding: 10px 18px; background: #00a884; color: #111b21; border: none; font-weight: bold; cursor: pointer; border-radius: 8px; }
 
-        /* Mobile / phone layout - WhatsApp-style full screen */
-        @media (max-width: 700px) {
-            html, body {
-                width: 100%;
-                height: 100%;
-                height: 100dvh;
-                min-height: 100dvh;
-                overflow: hidden;
-            }
-
-            body {
-                display: block;
-                margin: 0;
-                background: #0b141a;
-            }
-
-            #wa-dashboard {
-                width: 100vw;
-                max-width: none;
-                height: 100dvh;
-                min-height: 100dvh;
-                margin: 0;
-                box-shadow: none;
-                border-radius: 0;
-                overflow: hidden;
-            }
-
-            .wa-sidebar {
-                display: none;
-            }
-
-            .chat-section {
-                width: 100%;
-                height: 100%;
-                min-width: 0;
-                flex: 1;
-            }
-
-            header {
-                height: 58px;
-                min-height: 58px;
-                padding: 7px 8px;
-                border-left: none;
-                padding-top: max(7px, env(safe-area-inset-top));
-            }
-
-            .header-profile {
-                min-width: 0;
-                gap: 8px;
-                overflow: hidden;
-            }
-
-            .header-profile .avatar {
-                width: 38px;
-                height: 38px;
-                min-width: 38px;
-            }
-
-            .header-profile > div:last-child {
-                min-width: 0;
-            }
-
-            .header-profile > div:last-child > div:first-child {
-                white-space: nowrap;
-                overflow: hidden;
-                text-overflow: ellipsis;
-                max-width: 145px;
-            }
-
-            .header-tools {
-                gap: 2px;
-                flex-shrink: 0;
-            }
-
-            .header-tools .btn-wa {
-                width: 36px;
-                height: 36px;
-                padding: 0;
-                font-size: 0;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .header-tools .btn-wa:nth-of-type(1)::before { content: '📞'; font-size: 17px; }
-            .header-tools .btn-wa:nth-of-type(2)::before { content: '📹'; font-size: 17px; }
-            .header-tools .btn-wa:nth-of-type(3)::before { content: '⋮'; font-size: 24px; }
-            .header-tools .btn-wa:nth-of-type(4) { display: none; }
-
-            #messages {
-                padding: 12px 8px;
-                gap: 6px;
-                background-size: 22px 22px;
-                -webkit-overflow-scrolling: touch;
-            }
-
-            .msg-wrapper {
-                max-width: 86%;
-            }
-
-            .msg-box {
-                max-width: 100%;
-                padding: 7px 10px;
-                font-size: 0.92rem;
-            }
-
-            .media-preview {
-                max-width: min(72vw, 280px);
-                max-height: 45vh;
-            }
-
-            #typing-indicator {
-                height: 18px;
-                min-height: 18px;
-                padding: 0 10px;
-            }
-
-            #reply-bar {
-                min-height: 42px;
-                padding: 7px 10px;
-            }
-
-            #form {
-                width: 100%;
-                min-height: 58px;
-                padding: 7px 7px;
-                gap: 4px;
-                padding-bottom: max(7px, env(safe-area-inset-bottom));
-            }
-
-            #input {
-                min-width: 0;
-                padding: 10px 12px;
-                border-radius: 22px;
-                font-size: 16px;
-            }
-
-            .icon-btn {
-                font-size: 1.25rem;
-                padding: 0 4px;
-            }
-
-            .send-btn {
-                width: 44px;
-                height: 44px;
-                padding: 0;
-                border-radius: 50%;
-                font-size: 0;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-
-            .send-btn::before {
-                content: '➤';
-                font-size: 19px;
-            }
-
-            #attach-menu, #emoji-picker {
-                bottom: 62px;
-            }
-
-            #emoji-picker {
-                left: 8px;
-                max-width: calc(100vw - 16px);
-                grid-template-columns: repeat(6, 1fr);
-                gap: 8px;
-            }
-
-            #attach-menu {
-                left: 8px;
-            }
-
-            .auth-box {
-                width: calc(100vw - 32px);
-                max-width: 340px;
-                padding: 25px 20px;
-            }
-
-            #call-screen {
-                height: 100dvh;
-                padding: env(safe-area-inset-top) 10px env(safe-area-inset-bottom);
-            }
-
-            .video-container {
-                width: 100%;
-                height: 62dvh;
-                max-width: none;
-                border-radius: 10px;
-            }
-
-            #local-video {
-                width: 105px;
-                height: 145px;
-                bottom: 8px;
-                right: 8px;
-            }
-
-            .call-controls {
-                margin-top: 14px;
-            }
+        @media (max-width: 800px) {
+            body { align-items: stretch; }
+            #wa-dashboard { width: 100%; height: 100dvh; max-width: none; box-shadow: none; }
+            .wa-sidebar { display: none; }
+            .chat-section { width: 100%; min-width: 0; }
+            header { height: 58px; padding: 8px 10px; }
+            .header-tools { gap: 3px; }
+            .header-tools .btn-wa { padding: 6px 7px; font-size: .72rem; }
+            #messages { padding: 12px 3%; gap: 6px; }
+            .msg-wrapper { max-width: 86%; }
+            #form { padding: 8px 8px; gap: 5px; padding-bottom: max(8px, env(safe-area-inset-bottom)); }
+            #input { min-width: 0; padding: 10px 12px; }
+            .send-btn { padding: 10px 12px; }
+            .icon-btn { font-size: 1.15rem; }
+            .video-container { width: 96%; height: 55dvh; }
+            #local-video { width: 110px; height: 82px; }
+            .auth-box { width: min(92vw, 340px); }
         }
 
-        @media (max-width: 380px) {
-            .header-profile > div:last-child > div:first-child { max-width: 105px; }
-            .header-tools .btn-wa { width: 32px; height: 32px; }
-            .header-tools .btn-wa:nth-of-type(1)::before,
-            .header-tools .btn-wa:nth-of-type(2)::before { font-size: 15px; }
-            .header-tools .btn-wa:nth-of-type(3)::before { font-size: 21px; }
-            .msg-wrapper { max-width: 90%; }
+        @media (max-width: 430px) {
+            .header-tools .btn-wa:nth-child(3), .header-tools .btn-wa:nth-child(4) { display: none; }
+            .header-profile > div:last-child { max-width: 120px; overflow: hidden; }
+            .msg-actions { gap: 7px; flex-wrap: wrap; }
         }
     </style>
 </head>
@@ -519,6 +331,7 @@
         socket.on('incoming-call', (data) => {
             incomingOffer = data.offer;
             document.getElementById('incoming-type').textContent = `Incoming ${data.type.toUpperCase()} Call...`;
+            document.getElementById('incoming-type').dataset.callType = data.type;
             document.getElementById('incoming-modal').style.display = 'block';
         });
 
@@ -527,7 +340,7 @@
             document.getElementById('call-screen').style.display = 'flex';
             document.getElementById('call-status').textContent = 'Connected';
 
-            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            localStream = await navigator.mediaDevices.getUserMedia({ video: (document.getElementById('incoming-type').dataset.callType || 'video') === 'video', audio: true });
             document.getElementById('local-video').srcObject = localStream;
 
             peerConnection = new RTCPeerConnection(rtcConfig);
@@ -636,6 +449,10 @@
             document.getElementById('wa-dashboard').style.display = 'flex';
         });
         socket.on('access denied', (msg) => { document.getElementById('auth-error').textContent = msg; });
+        socket.on('presence update', (data) => {
+            const status = document.querySelector('.header-profile div div:last-child');
+            if (status) status.textContent = `${data.activeUsers} online`;
+        });
 
         function toggleEmoji() {
             const picker = document.getElementById('emoji-picker');
