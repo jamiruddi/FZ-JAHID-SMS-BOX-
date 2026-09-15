@@ -9,9 +9,14 @@ const path = require('path');
 
 app.use(express.static(__dirname));
 
-const SECRET_PASSCODE = "JS LOVE 123";
+app.get('/health', (req, res) => {
+    res.json({ ok: true, service: 'FZ JAHID SMS BOX', activeUsers, maxUsers: MAX_USERS });
+});
+
+const SECRET_PASSCODE = process.env.SMS_BOX_PASSCODE || "JS LOVE 123";
 const DATA_FILE = path.join(__dirname, 'chat_data.json');
 
+const MAX_USERS = Number(process.env.MAX_USERS || 4);
 let activeUsers = 0;
 let messageHistory = [];
 let currentWallpaper = null;
@@ -49,15 +54,16 @@ loadSavedData();
 io.on('connection', (socket) => {
     socket.on('verify passcode', (enteredCode) => {
         if (enteredCode === SECRET_PASSCODE) {
-            if (socket.authenticated) return;
-            if (activeUsers >= 4) {
-                socket.emit('access denied', 'ROOM FULL: Max 4 Users Allowed.');
+            if (activeUsers >= MAX_USERS) {
+                socket.emit('access denied', `ROOM FULL: Max ${MAX_USERS} Users Allowed.`);
                 socket.disconnect();
                 return;
             }
             activeUsers++;
             socket.authenticated = true;
+            socket.join('sms-box-room');
             socket.emit('access granted');
+            io.to('sms-box-room').emit('presence update', { activeUsers, maxUsers: MAX_USERS });
             
             // Purana history aur wallpaper naye user ko bejhein
             socket.emit('load history', messageHistory);
@@ -70,7 +76,6 @@ io.on('connection', (socket) => {
     });
 
     socket.on('chat message', (msgData) => {
-        if (!socket.authenticated) return;
         const fullMsg = {
             id: msgData.id,
             text: msgData.text || '',
@@ -85,92 +90,82 @@ io.on('connection', (socket) => {
         };
         messageHistory.push(fullMsg);
         saveData(); // Save to Permanent File
-        io.emit('chat message', fullMsg);
+        io.to('sms-box-room').emit('chat message', fullMsg);
     });
 
     socket.on('change wallpaper', (imageData) => {
-        if (!socket.authenticated) return;
         currentWallpaper = imageData;
         saveData(); // Save Wallpaper to Permanent File
-        io.emit('update wallpaper', imageData);
+        io.to('sms-box-room').emit('update wallpaper', imageData);
     });
 
     // WebRTC Signaling
     socket.on('call-user', (data) => {
-        if (!socket.authenticated) return;
-        socket.broadcast.emit('incoming-call', { offer: data.offer, type: data.type });
+        socket.to('sms-box-room').emit('incoming-call', { offer: data.offer, type: data.type });
     });
 
     socket.on('make-answer', (data) => {
-        if (!socket.authenticated) return;
-        socket.broadcast.emit('call-accepted', { answer: data.answer });
+        socket.to('sms-box-room').emit('call-accepted', { answer: data.answer });
     });
 
     socket.on('ice-candidate', (candidate) => {
-        if (!socket.authenticated) return;
-        socket.broadcast.emit('ice-candidate', candidate);
+        socket.to('sms-box-room').emit('ice-candidate', candidate);
     });
 
     socket.on('end-call', () => {
-        if (!socket.authenticated) return;
-        socket.broadcast.emit('call-ended');
+        socket.to('sms-box-room').emit('call-ended');
     });
 
     socket.on('reject-call', () => {
-        if (!socket.authenticated) return;
-        socket.broadcast.emit('call-rejected');
+        socket.to('sms-box-room').emit('call-rejected');
     });
 
     socket.on('edit message', (data) => {
-        if (!socket.authenticated) return;
         const msg = messageHistory.find(m => m.id === data.id);
         if (msg && msg.senderId === socket.id) {
             msg.text = data.newText + " (edited)";
             saveData();
-            io.emit('message edited', { id: data.id, newText: msg.text });
+            io.to('sms-box-room').emit('message edited', { id: data.id, newText: msg.text });
         }
     });
 
     socket.on('delete message', (msgId) => {
-        if (!socket.authenticated) return;
         const msg = messageHistory.find(m => m.id === msgId);
         if (msg && msg.senderId === socket.id) {
             msg.text = "🚫 This message was deleted";
             msg.fileData = null;
             msg.deleted = true;
             saveData();
-            io.emit('message deleted', { id: msgId, newText: msg.text });
+            io.to('sms-box-room').emit('message deleted', { id: msgId, newText: msg.text });
         }
     });
 
     socket.on('message seen', (data) => {
-        if (!socket.authenticated) return;
         const msg = messageHistory.find(m => m.id === data.msgId);
         if (msg) {
             msg.seen = true;
             saveData();
         }
-        socket.broadcast.emit('message seen', data);
+        socket.to('sms-box-room').emit('message seen', data);
     });
 
     // Jab koi "Clear History" dabaye tabhi saara data delete hoga
     socket.on('clear history', () => {
-        if (!socket.authenticated) return;
         messageHistory = [];
         currentWallpaper = null;
         saveData(); // Clear File Data
-        io.emit('history cleared');
-        io.emit('update wallpaper', null);
+        io.to('sms-box-room').emit('history cleared');
+        io.to('sms-box-room').emit('update wallpaper', null);
     });
 
     socket.on('typing', (isTyping) => {
-        if (!socket.authenticated) return;
-        socket.broadcast.emit('user typing', isTyping);
+        socket.to('sms-box-room').emit('user typing', isTyping);
     });
 
     socket.on('disconnect', () => {
         if (socket.authenticated) {
             activeUsers--;
+            io.to('sms-box-room').emit('presence update', { activeUsers, maxUsers: MAX_USERS });
             console.log(`User Disconnected. Active Users: ${activeUsers}`);
         }
     });
