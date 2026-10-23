@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: fz-connect
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_VERSION
+        value: 22
+      - key: FZ_CONNECT_PASSWORD
+        sync: false

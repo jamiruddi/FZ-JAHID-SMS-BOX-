@@ -1,0 +1,6 @@
+node_modules/
+fz_sms_box.db
+fz_sms_box.db-shm
+fz_sms_box.db-wal
+.env
+.DS_Store
